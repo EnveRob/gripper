@@ -182,7 +182,7 @@ void Control_Task(void ){
       }
 
       if(_bSign_output ){
-        MOTOR_CW(_slOutput_temp ) ;
+        MOTOR_CCW(_slOutput_temp ) ;
       }
       else{
         MOTOR_CCW(_slOutput_temp ) ;
@@ -192,7 +192,7 @@ void Control_Task(void ){
   else if(cControlMode == MODE_REVERSE){
     if(Timer_Speed.Timer_Task(TIME_SPEED_CONTROL_MS ) ){
     _slOutput_temp = iReverse;
-    MOTOR_CCW(_slOutput_temp) ;
+    MOTOR_CW(_slOutput_temp) ;
     }
     if(bReverse){
       bReverse = false;
