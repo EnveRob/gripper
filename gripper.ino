@@ -171,6 +171,7 @@ void Control_Task(void ){
                 _slDelta_err_v * FORCE_CONTROL_D ) >> 9 ) ;
       _slPrev_err_v = _slVolt_err ;
       slOutput_test = _slOutput_temp ;
+      ROS_INFO("PID_output: %f", _slOutput_temp);
 
       if(_slOutput_temp >= 0 ) _bSign_output = true ;
       else _bSign_output = false ;
