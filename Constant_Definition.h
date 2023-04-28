@@ -26,24 +26,12 @@
 #define PIN_INB							5
 #define PIN_ENABLE					4
 
-/*= Control Debug=*/
-//#define PIN_DEBUG						2
-
 /*== Hardware Setup Time ==*/
 #define TIME_SETUP_DELAY_MS				500
 
 /*======== Software Definition ========*/
 /*==== USB Constant ====*/
 #define TIME_USB_MS						5000
-
-// #define BUFFER_SIZE_USB					20
-
-// #define CASE_STOP						's'
-// #define CASE_VOLT				      'v'
-// #define CASE_REVERSE          'r'
-
-// #define SUB_CASE_WAVE_AMP				'a'
-// #define SUB_CASE_WAVE_PERIOD			'f'
 
 /*==== USB Plot Constant ====*/
 #define TIME_USB_MS_PLOT				10
@@ -75,14 +63,6 @@
 
 #define MOTOR_ENCODER_PPR				32000 // 16(gear ratio)*500(encoder ppr)*4
 
-// #define POSITION_CONTROL_P			  512
-// #define POSITION_CONTROL_I  			0
-// #define POSITION_CONTROL_D  			0
-
-// #define SPEED_CONTROL_P			  350
-// #define SPEED_CONTROL_I  			1
-// #define SPEED_CONTROL_D  			1200
-
 #define FORCE_CONTROL_P			  150
 #define FORCE_CONTROL_I  			0
 #define FORCE_CONTROL_D  			0
@@ -90,8 +70,6 @@
 #define AMPLITUDE_DEFAULT				16000
 #define PERIOD_DEFAULT_MS				2000.0
 
-// #define SET_FORCE             5 //N
-// #define MAX_FORCE             7
 #define SET_VOLT              497 //500g -> 498
 #define MAX_VOLT              573 //835g
 #define LOAD_CELL_OFFSET      700

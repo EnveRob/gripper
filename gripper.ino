@@ -3,7 +3,6 @@
 #include <Arduino.h>
 #include <ros.h>
 #include <geometry_msgs/Vector3.h>
-// #include <Encoder.h>
 
 ros::NodeHandle nh;
 geometry_msgs::Vector3 force;
@@ -38,8 +37,6 @@ volatile signed long avg_x;
 volatile signed long avg_y;
 int i;
 
-// Encoder myEnc(PIN_ENCODER_A, PIN_ENCODER_B ) ;
-
 void setup(){
   nh.initNode();
   nh.advertise(force_pub);
@@ -48,7 +45,6 @@ void setup(){
 }
 
 void loop(){
-	// USB_CMD_Task() ; // 下達指令
 	Control_Task() ; // 進行Motor Control
   Encoder_Task() ; // 讀取Encoder
   force_pub.publish(&force);
@@ -63,10 +59,6 @@ void Hardware_Setup(void ){
 		// config IO direction of LED
 	pinMode(PIN_LED_ONBOARD, OUTPUT ) ;
 
-	/*== USB Setup Function ==*/
-  // config USB UART baud rate
-	// Serial.begin(BAUDRATE_USB ) ;
-
 	/*== Motor Setup Function ==*/
 	pinMode(PIN_INA, OUTPUT ) ;
 	pinMode(PIN_INB, OUTPUT ) ;
@@ -76,13 +68,9 @@ void Hardware_Setup(void ){
 	pinMode(PIN_ENCODER_B, INPUT ) ;
   pinMode(X_AXIS, INPUT);
   pinMode(Y_AXIS, INPUT);
-	// attachInterrupt(digitalPinToInterrupt(PIN_ENCODER_A ), Encoder_Task_Simple, CHANGE ) ;
-	// attachInterrupt(digitalPinToInterrupt(PIN_ENCODER_B ), Encoder_Task_Simple, CHANGE ) ;
 
 	attachInterrupt(digitalPinToInterrupt(PIN_ENCODER_A ), Encoder_Task, CHANGE ) ;
 	attachInterrupt(digitalPinToInterrupt(PIN_ENCODER_B ), Encoder_Task, CHANGE ) ;
-
-	// Encoder_Task_Simple() ;
 }
 
 void Software_Setup(void ){
@@ -94,86 +82,10 @@ void Software_Setup(void ){
 
 	/*== Motor Control Setup Function ==*/
 	slEncoder_Counter = 0 ;
-  //iReverse = 0;
-  //iVolt = 0;
-	//cControlMode = MODE_STOP ;
 	MOTOR_STOP() ;
 
 	/*== Setup Finished!! ==*/
-	// Serial.print("SetPoint" ) ;
-	// Serial.print(" ") ;
-	// Serial.println("Encoder" ) ;
-
 }
-
-/*==== Basic Function ====*/
-
-/*== USB Function ==*/
-// void USB_CMD_Task(void ){
-// 	static signed long _slData0 = 0 ;
-// 	static int _iData0 = 0 ;
-//   static int _iTest0 = 0;
-// 	static char _cCommand, _cCommand2, _cTemp ;
-
-// 	static String _sStringIn = "" ;
-// 	static char _cDataIn[BUFFER_SIZE_USB] ;
-// 	static bool _bData_Complete ;
-
-// 	static int _iTemp =  0 ;
-	
-//   // Read buffer
-// 	while((_cTemp = Serial.read() ) != -1 )
-// 	{
-// 		if(_cTemp == '\n'){
-// 			_bData_Complete = true ;
-// 			break ;
-// 		}
-// 		else _sStringIn += _cTemp ;
-// 	}
-
-// 	if(_bData_Complete ){
-// 		_sStringIn.toCharArray(_cDataIn, BUFFER_SIZE_USB ) ;
-// 		// check case
-// 		switch(_cDataIn[0] )
-// 		{
-//       //輸入指令的時候打：s0 -> 停止; v0 -> 力控制模式; r0 -> 迴轉模式
-//       case CASE_STOP:
-//         cControlMode = MODE_STOP ;
-// 				_iTemp = sscanf(_cDataIn, "s%d", &_iData0) ;
-// 			break ;
-//       case CASE_VOLT:
-// 				cControlMode = MODE_VOLT ;
-// 				_iTemp = sscanf(_cDataIn, "v%d", &_iData0) ;
-// 				if(_iTemp > 0 ){
-//           iVolt = SET_VOLT ;
-// 				}
-// 			break ;
-//       case CASE_REVERSE:
-//         cControlMode = MODE_REVERSE ;
-//         _iTemp = sscanf(_cDataIn, "r%d", &_iData0 ) ;
-//         if(_iTemp > 0 ){
-// 					iReverse = 10;
-// 				}
-// 			default:
-// 			break ;
-// 		}
-// 		_sStringIn = "" ;
-// 		_bData_Complete = false ;
-// 	}
-// }
-
-// void USB_Plot_VoltTask(void ){
-// 	if(Timer_USB.Timer_Task(TIME_USB_MS_PLOT ) ){
-// 		Serial.print(iVolt) ;
-// 		Serial.print(" ") ;
-//     //Serial.print(slLoadCell_Volt_Read_y) ;
-//     Serial.print(avg_y) ;
-//     Serial.print(" ") ;
-//     Serial.print(avg_x) ;
-// 		Serial.print(" ") ;
-// 		Serial.println(slOutput_test ) ;
-// 	}
-// }
 
 /*== Motor Function ==*/
 void Encoder_Task(void ){
@@ -240,12 +152,10 @@ void Control_Task(void ){
     if(Timer_Control.Timer_Task(TIME_FORCE_CONTROL_MS ) ){
       /*==安全機制==*/
       /*=超過MAX_VOLT觸發MODE_REVERSE=*/
-      //if(slLoadCell_Volt_Read_y >= MAX_VOLT) cControlMode = MODE_REVERSE;
       if(avg_y >= MAX_VOLT ) cControlMode = MODE_REVERSE;
 	    
       /*==PID Voltage Control==*/
       /*=達到SET_VOLT(iVolt)夾爪停止轉動=*/
-      //_slVolt_err = (signed long)iVolt - slLoadCell_Volt_Read_y ; 
       _slVolt_err = (signed long)iVolt - avg_y ;
       _slDelta_err_v = _slVolt_err - _slPrev_err_v ;
       _slIntegral_err_v += _slVolt_err ;
