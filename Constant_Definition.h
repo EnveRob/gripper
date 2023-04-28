@@ -70,7 +70,7 @@
 #define AMPLITUDE_DEFAULT				16000
 #define PERIOD_DEFAULT_MS				2000.0
 
-#define SET_VOLT              497 //500g -> 498
+#define SET_VOLT              550 //500g -> 498
 #define MAX_VOLT              573 //835g
 #define LOAD_CELL_OFFSET      700
 

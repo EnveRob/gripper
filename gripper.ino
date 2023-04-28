@@ -55,7 +55,7 @@ void loop(){
   Encoder_Task() ; // 讀取Encoder
   force_pub.publish(&force);
   nh.spinOnce();
-  //delay(10);
+  delay(10);
 }
 
 /*========= Function =========*/
@@ -158,7 +158,7 @@ void Control_Task(void ){
     if(Timer_Control.Timer_Task(TIME_FORCE_CONTROL_MS ) ){
       /*==安全機制==*/
       /*=超過MAX_VOLT觸發MODE_REVERSE=*/
-      if(avg_y >= MAX_VOLT ) cControlMode = MODE_REVERSE;
+      if(avg_y >= MAX_VOLT || avg_x >= MAX_VOLT) cControlMode = MODE_REVERSE;
 	    
       /*==PID Voltage Control==*/
       /*=達到SET_VOLT(iVolt)夾爪停止轉動=*/
@@ -198,7 +198,7 @@ void Control_Task(void ){
       bReverse = false;
       _slEncoder_Counter_temp = slEncoder_Counter;
     }
-    if(abs(slEncoder_Counter - _slEncoder_Counter_temp) > 50) 
+    if(abs(slEncoder_Counter - _slEncoder_Counter_temp) > 25) 
       cControlMode = MODE_STOP;
   }
 }
@@ -214,6 +214,7 @@ void gripper_cmd_callback(const std_msgs::UInt8& cmd)
       break;
     case MODE_REVERSE:
       cControlMode = MODE_REVERSE;
+      bReverse = true;
       break;
   }
 }
