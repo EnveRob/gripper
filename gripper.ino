@@ -5,6 +5,8 @@
 #include <geometry_msgs/Vector3.h>
 #include <std_msgs/UInt8.h>
 
+
+void gripper_cmd_callback(const std_msgs::UInt8& cmd);
 ros::NodeHandle nh;
 geometry_msgs::Vector3 force;
 std_msgs::UInt8 cmd;
@@ -21,23 +23,23 @@ Constant_Timer Timer_Speed ;
 volatile signed long slEncoder_Counter = 0 ;
 volatile signed long slEncoder_Counter_last = 0 ;
 
-volatile signed float slLoadCell_Volt_Read_x = 0 ;
-volatile signed float slLoadCell_Volt_Read_y = 0 ;
-volatile signed float slOutput_test = 0;
+volatile float slLoadCell_Volt_Read_x = 0 ;
+volatile float slLoadCell_Volt_Read_y = 0 ;
+volatile float slOutput_test = 0;
 
 //static int iVolt = 0 ;
 static int iVolt = SET_VOLT ;
 static int iReverse = 10 ;
-static char cControlMode = MODE_VOLT ;
+static char cControlMode = MODE_STOP ;
 static bool bReverse = true ;
 
 /*== Moving average filter setup ==*/
 int ma_counter = 0;
 int avg_num = 10;
-volatile signed float avg_volt_x[10] = {0};
-volatile signed float avg_volt_y[10] = {0};
-volatile signed float avg_x;
-volatile signed float avg_y;
+volatile float avg_volt_x[10] = {0};
+volatile float avg_volt_y[10] = {0};
+volatile float avg_x;
+volatile float avg_y;
 int i;
 
 void setup(){
@@ -53,7 +55,7 @@ void loop(){
   Encoder_Task() ; // 讀取Encoder
   force_pub.publish(&force);
   nh.spinOnce();
-  delay(10);
+  //delay(10);
 }
 
 /*========= Function =========*/
@@ -203,7 +205,7 @@ void Control_Task(void ){
 
 void gripper_cmd_callback(const std_msgs::UInt8& cmd)
 {
-  switch(cmd){
+  switch(cmd.data){
     case MODE_STOP:
       cControlMode = MODE_STOP;
       break;
