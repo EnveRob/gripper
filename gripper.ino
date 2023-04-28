@@ -3,10 +3,13 @@
 #include <Arduino.h>
 #include <ros.h>
 #include <geometry_msgs/Vector3.h>
+#include <std_msgs/UInt8.h>
 
 ros::NodeHandle nh;
 geometry_msgs::Vector3 force;
+std_msgs::UInt8 cmd;
 ros::Publisher force_pub("force_data", &force);
+ros::Subscriber<std_msgs::UInt8> cmd_sub("gripper_cmd", &gripper_cmd_callback);
 
 /*== Timer Variables ==*/
 Constant_Timer Timer_Encoder ;
@@ -17,10 +20,10 @@ Constant_Timer Timer_Speed ;
 /*== Motor Variables ==*/
 volatile signed long slEncoder_Counter = 0 ;
 volatile signed long slEncoder_Counter_last = 0 ;
-volatile signed long slSpeed = 0;
-volatile signed long slLoadCell_Volt_Read_x = 0 ;
-volatile signed long slLoadCell_Volt_Read_y = 0 ;
-volatile signed long slOutput_test = 0;
+
+volatile signed float slLoadCell_Volt_Read_x = 0 ;
+volatile signed float slLoadCell_Volt_Read_y = 0 ;
+volatile signed float slOutput_test = 0;
 
 //static int iVolt = 0 ;
 static int iVolt = SET_VOLT ;
@@ -30,16 +33,17 @@ static bool bReverse = true ;
 
 /*== Moving average filter setup ==*/
 int ma_counter = 0;
-volatile signed long avg_num = 10;
-volatile signed long avg_volt_x[10] = {0};
-volatile signed long avg_volt_y[10] = {0};
-volatile signed long avg_x;
-volatile signed long avg_y;
+int avg_num = 10;
+volatile signed float avg_volt_x[10] = {0};
+volatile signed float avg_volt_y[10] = {0};
+volatile signed float avg_x;
+volatile signed float avg_y;
 int i;
 
 void setup(){
   nh.initNode();
   nh.advertise(force_pub);
+  nh.subscribe(cmd_sub);
 	Hardware_Setup() ;
 	Software_Setup() ;
 }
@@ -194,5 +198,20 @@ void Control_Task(void ){
     }
     if(abs(slEncoder_Counter - _slEncoder_Counter_temp) > 50) 
       cControlMode = MODE_STOP;
+  }
+}
+
+void gripper_cmd_callback(const std_msgs::UInt8& cmd)
+{
+  switch(cmd){
+    case MODE_STOP:
+      cControlMode = MODE_STOP;
+      break;
+    case MODE_VOLT:
+      cControlMode = MODE_VOLT;
+      break;
+    case MODE_REVERSE:
+      cControlMode = MODE_REVERSE;
+      break;
   }
 }
