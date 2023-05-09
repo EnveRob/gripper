@@ -59,7 +59,7 @@ void loop(){
   force_pub.publish(&force);
   shut_pub.publish(&shutdown);
   nh.spinOnce();
-  //delay(10);
+  delay(10);
 }
 
 /*========= Function =========*/
@@ -162,7 +162,7 @@ void Control_Task(void ){
     if(Timer_Control.Timer_Task(TIME_FORCE_CONTROL_MS ) ){
       /*==安全機制==*/
       /*=超過MAX_VOLT觸發MODE_REVERSE=*/
-      if(avg_y >= MAX_VOLT ){
+      if(avg_y >= MAX_VOLT || avg_x >= MAX_VOLT){
         cControlMode = MODE_REVERSE;
         shutdown.data = True;
       }
@@ -178,7 +178,6 @@ void Control_Task(void ){
                 _slDelta_err_v * FORCE_CONTROL_D ) >> 9 ) ;
       _slPrev_err_v = _slVolt_err ;
       slOutput_test = _slOutput_temp ;
-      ROS_INFO("PID_output: %f", _slOutput_temp);
 
       if(_slOutput_temp >= 0 ) _bSign_output = true ;
       else _bSign_output = false ;
@@ -206,7 +205,7 @@ void Control_Task(void ){
       bReverse = false;
       _slEncoder_Counter_temp = slEncoder_Counter;
     }
-    if(abs(slEncoder_Counter - _slEncoder_Counter_temp) > 20) 
+    if(abs(slEncoder_Counter - _slEncoder_Counter_temp) > 25) 
       cControlMode = MODE_STOP;
   }
 }
@@ -223,6 +222,7 @@ void gripper_cmd_callback(const std_msgs::UInt8& cmd)
       break;
     case MODE_REVERSE:
       cControlMode = MODE_REVERSE;
+      bReverse = true;
       break;
   }
 }
