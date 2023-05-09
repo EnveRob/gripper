@@ -10,7 +10,9 @@ void gripper_cmd_callback(const std_msgs::UInt8& cmd);
 ros::NodeHandle nh;
 geometry_msgs::Vector3 force;
 std_msgs::UInt8 cmd;
+std_msgs::Bool shutdown;
 ros::Publisher force_pub("force_data", &force);
+ros::Publisher shut_pub("shutdown", &shutdown);
 ros::Subscriber<std_msgs::UInt8> cmd_sub("gripper_cmd", &gripper_cmd_callback);
 
 /*== Timer Variables ==*/
@@ -45,6 +47,7 @@ int i;
 void setup(){
   nh.initNode();
   nh.advertise(force_pub);
+  nh.advertise(shut_pub);
   nh.subscribe(cmd_sub);
 	Hardware_Setup() ;
 	Software_Setup() ;
@@ -54,6 +57,7 @@ void loop(){
 	Control_Task() ; // 進行Motor Control
   Encoder_Task() ; // 讀取Encoder
   force_pub.publish(&force);
+  shut_pub.publish(&shutdown);
   nh.spinOnce();
   //delay(10);
 }
@@ -158,7 +162,10 @@ void Control_Task(void ){
     if(Timer_Control.Timer_Task(TIME_FORCE_CONTROL_MS ) ){
       /*==安全機制==*/
       /*=超過MAX_VOLT觸發MODE_REVERSE=*/
-      if(avg_y >= MAX_VOLT ) cControlMode = MODE_REVERSE;
+      if(avg_y >= MAX_VOLT ){
+        cControlMode = MODE_REVERSE;
+        shutdown.data = True;
+      }
 	    
       /*==PID Voltage Control==*/
       /*=達到SET_VOLT(iVolt)夾爪停止轉動=*/
@@ -199,7 +206,7 @@ void Control_Task(void ){
       bReverse = false;
       _slEncoder_Counter_temp = slEncoder_Counter;
     }
-    if(abs(slEncoder_Counter - _slEncoder_Counter_temp) > 50) 
+    if(abs(slEncoder_Counter - _slEncoder_Counter_temp) > 20) 
       cControlMode = MODE_STOP;
   }
 }
@@ -212,6 +219,7 @@ void gripper_cmd_callback(const std_msgs::UInt8& cmd)
       break;
     case MODE_VOLT:
       cControlMode = MODE_VOLT;
+      shutdown.data = False;
       break;
     case MODE_REVERSE:
       cControlMode = MODE_REVERSE;
