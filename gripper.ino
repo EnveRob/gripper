@@ -4,6 +4,7 @@
 #include <ros.h>
 #include <geometry_msgs/Vector3.h>
 #include <std_msgs/UInt8.h>
+#include <std_msgs/Bool.h>
 
 
 void gripper_cmd_callback(const std_msgs::UInt8& cmd);
@@ -164,7 +165,7 @@ void Control_Task(void ){
       /*=超過MAX_VOLT觸發MODE_REVERSE=*/
       if(avg_y >= MAX_VOLT || avg_x >= MAX_VOLT){
         cControlMode = MODE_REVERSE;
-        shutdown.data = True;
+        shutdown.data = true;
       }
 	    
       /*==PID Voltage Control==*/
@@ -218,7 +219,7 @@ void gripper_cmd_callback(const std_msgs::UInt8& cmd)
       break;
     case MODE_VOLT:
       cControlMode = MODE_VOLT;
-      shutdown.data = False;
+      shutdown.data = false;
       break;
     case MODE_REVERSE:
       cControlMode = MODE_REVERSE;
